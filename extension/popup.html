@@ -7,6 +7,38 @@
   <div class="container">
     <h3>Search v LLM</h3>
     <textarea id="query" rows="1" placeholder="Ask anything..."></textarea>
+    <div class="settings">
+      <div class="setting-group">
+        <label for="browser-select">Default search engine:</label>
+        <select id="browser-select">
+          <option value="google">Google</option>
+          <option value="duckduckgo">DuckDuckGo</option>
+          <option value="bing">Bing</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input
+          id="browser-custom"
+          type="text"
+          placeholder="Custom search URL prefix, e.g. https://example.com/search?q="
+          style="display:none;"
+        />
+      </div>
+      <div class="setting-group">
+        <label for="llm-select">Default LLM:</label>
+        <select id="llm-select">
+          <option value="openai">ChatGPT (OpenAI)</option>
+          <option value="claude">Claude</option>
+          <option value="localhost">Localhost</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input
+          id="llm-custom"
+          type="text"
+          placeholder="Custom LLM URL prefix, e.g. https://your-llm-page.com?q="
+          style="display:none;"
+        />
+      </div>
+    </div>
     <button id="submit">Route</button>
     <div id="result"></div>
   </div>
