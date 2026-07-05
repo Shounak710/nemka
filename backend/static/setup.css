@@ -237,10 +237,42 @@ select {
   margin-top: 3px;
 }
 
+.checkbox-footnote {
+  margin: 6px 0 0 26px;
+  font-size: 10px;
+  line-height: 1.45;
+  color: #9ca3af;
+}
+
 .history-empty {
   margin: 0;
   color: var(--muted);
   font-size: 14px;
+}
+
+#query-history {
+  height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+#query-history::-webkit-scrollbar {
+  width: 8px;
+}
+
+#query-history::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#query-history::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+#query-history::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .history-item {

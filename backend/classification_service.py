@@ -1,7 +1,7 @@
 from pathlib import Path
 import pickle
 
-from .heuristic_service import apply_heuristics
+from .heuristic_service import apply_heuristics, is_code_review_query
 from .stackoverflow_service import find_acceptable_answer, is_code_query
 
 _MODEL_PATH = Path(__file__).resolve().parent.parent / "model_training" / "query_router.pkl"
@@ -33,6 +33,12 @@ def _predict(query: str):
 
 
 def _apply_stackoverflow_override(query: str, result: dict) -> dict:
+    print(is_code_review_query(query))
+    print(is_code_query(query))
+    print(find_acceptable_answer(query))
+    if is_code_review_query(query):
+        return {**result, "route": "llm"}
+
     if not is_code_query(query):
         return result
 

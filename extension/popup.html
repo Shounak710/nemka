@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search v LLM</title>
+    <title>Nemka</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
@@ -12,7 +12,7 @@
         <div class="brand">
           <span class="brand-icon">⇄</span>
           <div>
-            <h1>Search v LLM</h1>
+            <h1>Nemka</h1>
             <p class="subtitle">Route your query the smart way</p>
           </div>
         </div>
@@ -83,36 +83,23 @@
               <option value="google">Google</option>
               <option value="duckduckgo">DuckDuckGo</option>
               <option value="bing">Bing</option>
-              <option value="custom">Custom…</option>
+              <option value="firefox">Firefox</option>
             </select>
-            <input
-              id="browser-custom"
-              class="full-width hidden"
-              type="text"
-              placeholder="https://example.com/search?q="
-            />
 
             <label for="llm-select">LLM destination</label>
             <select id="llm-select">
               <option value="openai">ChatGPT</option>
               <option value="claude">Claude</option>
-              <option value="custom">Custom…</option>
             </select>
-            <input
-              id="llm-custom"
-              class="full-width hidden"
-              type="text"
-              placeholder="https://your-llm.com?q="
-            />
 
             <a
               id="setup-link"
               class="setup-link full-width"
-              href="http://127.0.0.1:5000/setup"
+              href="http://127.0.0.1:5000/"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Open setup page for default search engine
+              Open home page for default search engine
             </a>
           </div>
         </details>

@@ -1,7 +1,5 @@
 const searchEngineSelect = document.getElementById("search-engine");
-const customSearchUrlInput = document.getElementById("custom-search-url");
 const llmSelect = document.getElementById("llm");
-const customLlmUrlInput = document.getElementById("custom-llm-url");
 const statusEl = document.getElementById("save-status");
 const searchUrlInput = document.getElementById("search-url");
 const copySearchUrlBtn = document.getElementById("copy-search-url");
@@ -9,34 +7,82 @@ const testForm = document.getElementById("test-form");
 const testQueryInput = document.getElementById("test-query");
 const optOutLoggingCheckbox = document.getElementById("opt-out-logging");
 
+const PREFERENCES_KEY = "nemka_setup_preferences";
+const LEGACY_PREFERENCES_KEY = "svllm_setup_preferences";
+const VALID_SEARCH_ENGINES = new Set(["google", "duckduckgo", "bing", "firefox"]);
+const VALID_LLMS = new Set(["openai", "claude"]);
+
+const DEFAULT_PREFERENCES = {
+  searchEngine: "google",
+  llm: "openai",
+  optOutLogging: false,
+};
+
 function setStatus(message, type = "") {
   statusEl.textContent = message;
   statusEl.className = `status${type ? ` ${type}` : ""}`;
 }
 
-function toggleCustomFields() {
-  customSearchUrlInput.classList.toggle(
-    "hidden",
-    searchEngineSelect.value !== "custom"
+function normalizeSearchEngine(value) {
+  return VALID_SEARCH_ENGINES.has(value) ? value : DEFAULT_PREFERENCES.searchEngine;
+}
+
+function normalizeLlm(value) {
+  return VALID_LLMS.has(value) ? value : DEFAULT_PREFERENCES.llm;
+}
+
+function readPreferencesFromUI() {
+  return {
+    searchEngine: normalizeSearchEngine(searchEngineSelect.value),
+    llm: normalizeLlm(llmSelect.value),
+    optOutLogging: optOutLoggingCheckbox.checked,
+  };
+}
+
+function applyPreferencesToUI(preferences) {
+  searchEngineSelect.value = normalizeSearchEngine(preferences.searchEngine);
+  llmSelect.value = normalizeLlm(preferences.llm);
+  optOutLoggingCheckbox.checked = Boolean(preferences.optOutLogging);
+}
+
+function savePreferencesToStorage() {
+  localStorage.setItem(
+    PREFERENCES_KEY,
+    JSON.stringify(readPreferencesFromUI())
   );
-  customLlmUrlInput.classList.toggle("hidden", llmSelect.value !== "custom");
+}
+
+function loadPreferencesFromStorage() {
+  try {
+    let stored = localStorage.getItem(PREFERENCES_KEY);
+    if (!stored) {
+      stored = localStorage.getItem(LEGACY_PREFERENCES_KEY);
+    }
+    if (!stored) {
+      return { ...DEFAULT_PREFERENCES };
+    }
+    const preferences = { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+    if (!localStorage.getItem(PREFERENCES_KEY)) {
+      localStorage.setItem(PREFERENCES_KEY, stored);
+    }
+    return preferences;
+  } catch {
+    return { ...DEFAULT_PREFERENCES };
+  }
+}
+
+function syncSetupPage() {
+  savePreferencesToStorage();
+  updateSearchUrlField();
+  updateHistorySectionVisibility();
 }
 
 function buildConfigParams() {
   const params = new URLSearchParams({
-    se: searchEngineSelect.value,
-    llm: llmSelect.value,
+    se: normalizeSearchEngine(searchEngineSelect.value),
+    llm: normalizeLlm(llmSelect.value),
   });
 
-  const customSearchUrl = customSearchUrlInput.value.trim();
-  const customLlmUrl = customLlmUrlInput.value.trim();
-
-  if (searchEngineSelect.value === "custom" && customSearchUrl) {
-    params.set("csu", customSearchUrl);
-  }
-  if (llmSelect.value === "custom" && customLlmUrl) {
-    params.set("clu", customLlmUrl);
-  }
   if (optOutLoggingCheckbox.checked) {
     params.set("log", "0");
   }
@@ -84,18 +130,9 @@ testQueryInput.addEventListener("keydown", (event) => {
   }
 });
 
-[
-  searchEngineSelect,
-  customSearchUrlInput,
-  llmSelect,
-  customLlmUrlInput,
-  optOutLoggingCheckbox,
-].forEach((element) => {
+[searchEngineSelect, llmSelect, optOutLoggingCheckbox].forEach((element) => {
   element.addEventListener("change", () => {
-    updateSearchUrlField();
-    updateHistorySectionVisibility();
-  });
-  element.addEventListener("input", () => {
+    savePreferencesToStorage();
     updateSearchUrlField();
     updateHistorySectionVisibility();
   });
@@ -104,7 +141,7 @@ testQueryInput.addEventListener("keydown", (event) => {
 copySearchUrlBtn.addEventListener("click", copySearchUrl);
 testForm.addEventListener("submit", handleTestSubmit);
 
-toggleCustomFields();
+applyPreferencesToUI(loadPreferencesFromStorage());
 updateSearchUrlField();
 autoResizeTestQuery();
 updateHistorySectionVisibility();

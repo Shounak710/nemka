@@ -5,19 +5,36 @@ import urllib.parse
 import urllib.request
 
 STACKEXCHANGE_API = "https://api.stackexchange.com/2.3/search/advanced"
-USER_AGENT = "search-v-llm-router/1.0"
+USER_AGENT = "nemka-router/1.0"
 MIN_SCORE = 3
 
 _CODE_QUERY = re.compile(
     r"\b("
+    # Languages & runtimes
     r"python|javascript|typescript|java|c\+\+|c#|rust|golang|go lang|ruby|php|sql|"
+    # Errors & debugging
     r"error|exception|traceback|stack trace|syntaxerror|typeerror|nameerror|"
     r"referenceerror|valueerror|keyerror|attributeerror|indentationerror|"
     r"importerror|modulenotfounderror|runtimeerror|nullpointer|segfault|"
+    # General code terms
     r"function|variable|class|method|import|compile|debug|regex|api|"
     r"react|vue|angular|node\.?js|django|flask|fastapi|spring|kubernetes|docker|"
     r"git|npm|pip|gradle|compiler|algorithm|leetcode|stackoverflow|"
-    r"undefined is not|null is not|cannot read propert"
+    r"undefined is not|null is not|cannot read propert|"
+    # Data structures
+    r"array|arrays|list|lists|linked list|doubly linked|stack|queue|"
+    r"priority queue|deque|heap|binary tree|binary search tree|\bbst\b|"
+    r"tree|trees|graph|graphs|hash map|hashmap|hash table|hashtable|"
+    r"hashset|hash set|dictionary|matrices|matrix|trie|"
+    # Algorithms & techniques
+    r"sorting|merge sort|quick sort|quicksort|bubble sort|heap sort|radix sort|"
+    r"binary search|linear search|depth first|breadth first|\bdfs\b|\bbfs\b|"
+    r"dijkstra|djikstra|bellman|ford|floyd|warshall|kruskal|prim|"
+    r"dynamic programming|\bdp\b|recursion|recursive|greedy|backtracking|"
+    r"palindrome|fibonacci|factorial|permutation|combination|"
+    r"subsequence|substring|two pointer|sliding window|divide and conquer|"
+    r"big o|time complexity|space complexity|"
+    r"neetcode|hackerrank|codewars"
     r")\b",
     re.IGNORECASE,
 )

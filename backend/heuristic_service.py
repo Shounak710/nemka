@@ -4,6 +4,14 @@ import re
 _LLM_CREATION = re.compile(
     r"\b(write|create|design|generate|build|draft|implement|compose|make)\b"
 )
+_LLM_CODE_REVIEW = re.compile(
+    r"\b("
+    r"check if|is it correct|is this correct|does this look|am i doing this right|"
+    r"review this|in this code|in my code|this code|my code|"
+    r"what'?s wrong with this|did i do this right"
+    r")\b",
+    re.IGNORECASE,
+)
 _LLM_REASONING = re.compile(
     r"\b("
     r"why|how does|how do|explain|compare|pros and cons|should i|"
@@ -31,6 +39,10 @@ _LLM_PREFIXES = re.compile(
 )
 
 
+def is_code_review_query(query: str) -> bool:
+    return bool(_LLM_CODE_REVIEW.search(query))
+
+
 def apply_heuristics(query: str):
     q = query.lower().strip()
     if not q:
@@ -40,6 +52,9 @@ def apply_heuristics(query: str):
 
     if _LLM_CREATION.search(q):
         return {"route": "llm", "source": "heuristic", "reason": "creation"}
+
+    if _LLM_CODE_REVIEW.search(q):
+        return {"route": "llm", "source": "heuristic", "reason": "code_review"}
 
     if _LLM_REASONING.search(q):
         return {"route": "llm", "source": "heuristic", "reason": "reasoning"}

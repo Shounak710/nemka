@@ -1,12 +1,11 @@
-const QUERY_HISTORY_KEY = "svllm_query_history";
-
-function isLoggingEnabled() {
-  const checkbox = document.getElementById("opt-out-logging");
-  return checkbox ? !checkbox.checked : true;
-}
+const QUERY_HISTORY_KEY = "nemka_query_history";
+const LEGACY_QUERY_HISTORY_KEY = "svllm_query_history";
 
 function loadQueryHistory() {
-  return JSON.parse(localStorage.getItem(QUERY_HISTORY_KEY) || "[]");
+  const stored =
+    localStorage.getItem(QUERY_HISTORY_KEY) ||
+    localStorage.getItem(LEGACY_QUERY_HISTORY_KEY);
+  return JSON.parse(stored || "[]");
 }
 
 function saveQueryHistory(history) {
@@ -16,11 +15,6 @@ function saveQueryHistory(history) {
 function updateHistorySectionVisibility() {
   const historySection = document.getElementById("history-section");
   if (!historySection) {
-    return;
-  }
-
-  if (!isLoggingEnabled()) {
-    historySection.classList.add("hidden");
     return;
   }
 

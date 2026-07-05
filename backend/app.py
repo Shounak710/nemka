@@ -1,15 +1,18 @@
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote, urlencode
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .classification_service import classify
 from .query_log import log_classification, log_feedback, update_log_preference
+from .geo_service import client_ip, country_from_headers
+from .stats_log import log_request_stat, summarize_stats
 from .routing_urls import (
     build_handoff_params,
     build_llm_url,
@@ -19,7 +22,7 @@ from .routing_urls import (
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
-app = FastAPI(title="Query Router", version="1.0.0")
+app = FastAPI(title="Nemka", version="1.0.0")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
@@ -63,6 +66,26 @@ class LogPreferenceResponse(BaseModel):
     status: str = "ok"
 
 
+def _schedule_request_stats(
+    background_tasks: BackgroundTasks,
+    request: Request,
+    *,
+    endpoint: str,
+    result: dict,
+    latency_ms: float,
+    query_logged: bool,
+) -> None:
+    background_tasks.add_task(
+        log_request_stat,
+        ip=client_ip(request),
+        country_hint=country_from_headers(request),
+        endpoint=endpoint,
+        result=result,
+        latency_ms=latency_ms,
+        query_logged=query_logged,
+    )
+
+
 def _resolve_search_destination(query: str, result: dict, preferences: dict) -> str:
     if result.get("redirect_url"):
         return result["redirect_url"]
@@ -70,13 +93,13 @@ def _resolve_search_destination(query: str, result: dict, preferences: dict) -> 
 
 
 @app.get("/")
-def root():
-    return RedirectResponse(url="/setup")
+def home_page():
+    return FileResponse(STATIC_DIR / "setup.html")
 
 
 @app.get("/setup")
 def setup_page():
-    return FileResponse(STATIC_DIR / "setup.html")
+    return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/route-handoff")
@@ -87,6 +110,7 @@ def route_handoff_page():
 @app.get("/search")
 def search_redirect(
     request: Request,
+    background_tasks: BackgroundTasks,
     q: str = Query(..., min_length=1),
     se: str = Query("google"),
     llm: str = Query("openai"),
@@ -94,11 +118,12 @@ def search_redirect(
     clu: str = Query(""),
     log: str = Query("1"),
 ):
+    started = time.perf_counter()
     query = q.strip()
     if query in {"%s", "%25s"}:
         raise HTTPException(
             status_code=400,
-            detail="Search URL placeholder was not replaced. Re-copy the URL from /setup — it must contain q=%s, not q=%25s.",
+            detail="Search URL placeholder was not replaced. Re-copy the URL from the home page — it must contain q=%s, not q=%25s.",
         )
     if not query:
         raise HTTPException(status_code=400, detail="Query cannot be empty")
@@ -106,6 +131,16 @@ def search_redirect(
     log_queries = log != "0"
     preferences = preferences_from_params(se=se, llm=llm, csu=csu, clu=clu)
     result = classify(query)
+    latency_ms = (time.perf_counter() - started) * 1000
+
+    _schedule_request_stats(
+        background_tasks,
+        request,
+        endpoint="/search",
+        result=result,
+        latency_ms=latency_ms,
+        query_logged=log_queries,
+    )
 
     log_id = None
     if log_queries:
@@ -208,13 +243,24 @@ def health():
 
 
 @app.post("/classify", response_model=ClassifyResponse)
-def classify_query(body: ClassifyRequest):
+def classify_query(body: ClassifyRequest, request: Request, background_tasks: BackgroundTasks):
+    started = time.perf_counter()
     query = body.query.strip()
     if not query:
         raise HTTPException(status_code=400, detail="Query cannot be empty")
 
     result = classify(query)
+    latency_ms = (time.perf_counter() - started) * 1000
     log_classification(query, result)
+
+    _schedule_request_stats(
+        background_tasks,
+        request,
+        endpoint="/classify",
+        result=result,
+        latency_ms=latency_ms,
+        query_logged=True,
+    )
 
     return ClassifyResponse(
         query=query,
@@ -227,6 +273,11 @@ def classify_query(body: ClassifyRequest):
         stackoverflow_score=result.get("stackoverflow_score"),
         stackoverflow_accepted=result.get("stackoverflow_accepted"),
     )
+
+
+@app.get("/api/stats/summary")
+def stats_summary(days: int = Query(30, ge=1, le=365)):
+    return summarize_stats(days=days)
 
 
 @app.post("/feedback", response_model=FeedbackResponse)

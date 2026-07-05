@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search v LLM — Setup</title>
+    <title>Nemka — Setup</title>
     <link rel="stylesheet" href="/static/setup.css" />
   </head>
   <body>
     <div class="page">
       <header class="hero">
         <div class="hero-badge">Setup</div>
-        <h1>Search v LLM</h1>
+        <h1>Nemka</h1>
         <p class="hero-copy">
           Pick your search engine and LLM destination, copy the generated URL, and
           add it as your browser's default search engine.
@@ -31,12 +31,21 @@
             ></textarea>
             <button type="submit" class="btn btn-primary">Route query</button>
           </form>
+
+          <label class="checkbox-row">
+            <input id="opt-out-logging" type="checkbox" />
+            <span>Don't log my queries for backend analysis</span>
+          </label>
+          <p class="checkbox-footnote">
+            * Anonymous usage stats (route counts, latency, country) are still
+            collected without query text.
+          </p>
         </section>
 
-        <section id="history-section" class="card card-full hidden">
+        <section id="history-section" class="card card-full">
           <h2>Query history</h2>
           <p class="card-copy">
-            Past queries are saved locally in your browser when logging is enabled.
+            Checking "Don't log my queries" stops new entries but keeps your existing history here.
             Rate whether search was enough or you needed an LLM.
           </p>
           <div id="query-history"></div>
@@ -50,32 +59,14 @@
             <option value="google">Google</option>
             <option value="duckduckgo">DuckDuckGo</option>
             <option value="bing">Bing</option>
-            <option value="custom">Custom…</option>
+            <option value="firefox">Firefox</option>
           </select>
-          <input
-            id="custom-search-url"
-            class="hidden"
-            type="text"
-            placeholder="https://example.com/search?q={q}"
-          />
 
           <label for="llm">LLM destination</label>
           <select id="llm">
             <option value="openai">ChatGPT</option>
             <option value="claude">Claude</option>
-            <option value="custom">Custom…</option>
           </select>
-          <input
-            id="custom-llm-url"
-            class="hidden"
-            type="text"
-            placeholder="https://your-llm.com?q={q}"
-          />
-
-          <label class="checkbox-row">
-            <input id="opt-out-logging" type="checkbox" />
-            <span>Don't log my queries for backend analysis</span>
-          </label>
         </section>
 
         <section class="card">
@@ -97,8 +88,8 @@
             <ol>
               <li>Open <code>chrome://settings/searchEngines</code></li>
               <li>Click <strong>Add</strong></li>
-              <li>Name: <code>Search v LLM</code></li>
-              <li>Shortcut: <code>svllm</code></li>
+              <li>Name: <code>Nemka</code></li>
+              <li>Shortcut: <code>nemka</code></li>
               <li>Paste the search URL above</li>
               <li>Set as default</li>
             </ol>

@@ -4,6 +4,8 @@ import {
   getLlmUrl,
   getSearchUrl,
   loadSettings,
+  normalizeLlm,
+  normalizeSearchEngine,
   saveSettings,
 } from "./settings.js";
 
@@ -19,9 +21,7 @@ const feedbackSection = document.getElementById("feedback-section");
 const feedbackQuery = document.getElementById("feedback-query");
 
 const browserSelect = document.getElementById("browser-select");
-const browserCustomInput = document.getElementById("browser-custom");
 const llmSelect = document.getElementById("llm-select");
-const llmCustomInput = document.getElementById("llm-custom");
 
 let settings = { ...DEFAULT_SETTINGS };
 let currentClassification = null;
@@ -42,25 +42,15 @@ function autoResizeTextarea() {
 }
 
 function applySettingsToUI() {
-  browserSelect.value = settings.searchEngine;
-  llmSelect.value = settings.llm;
-  browserCustomInput.value = settings.customSearchUrl || "";
-  llmCustomInput.value = settings.customLlmUrl || "";
-
-  browserCustomInput.classList.toggle(
-    "hidden",
-    browserSelect.value !== "custom"
-  );
-  llmCustomInput.classList.toggle("hidden", llmSelect.value !== "custom");
+  browserSelect.value = normalizeSearchEngine(settings.searchEngine);
+  llmSelect.value = normalizeLlm(settings.llm);
 }
 
 function readSettingsFromUI() {
   settings = {
     ...settings,
-    searchEngine: browserSelect.value,
-    llm: llmSelect.value,
-    customSearchUrl: browserCustomInput.value.trim(),
-    customLlmUrl: llmCustomInput.value.trim(),
+    searchEngine: normalizeSearchEngine(browserSelect.value),
+    llm: normalizeLlm(llmSelect.value),
   };
 }
 
@@ -271,25 +261,8 @@ document.querySelectorAll("[data-useful]").forEach((button) => {
   });
 });
 
-[
-  browserSelect,
-  browserCustomInput,
-  llmSelect,
-  llmCustomInput,
-].forEach((element) => {
+[browserSelect, llmSelect].forEach((element) => {
   element.addEventListener("change", persistSettings);
-  element.addEventListener("input", persistSettings);
-});
-
-browserSelect.addEventListener("change", () => {
-  browserCustomInput.classList.toggle(
-    "hidden",
-    browserSelect.value !== "custom"
-  );
-});
-
-llmSelect.addEventListener("change", () => {
-  llmCustomInput.classList.toggle("hidden", llmSelect.value !== "custom");
 });
 
 async function init() {
@@ -300,7 +273,7 @@ async function init() {
 
   const setupLink = document.getElementById("setup-link");
   if (setupLink) {
-    setupLink.href = `${settings.apiBaseUrl}/setup`;
+    setupLink.href = settings.apiBaseUrl.replace(/\/$/, "");
   }
 }
 
