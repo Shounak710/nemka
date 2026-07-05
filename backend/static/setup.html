@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search v LLM — Setup</title>
+    <link rel="stylesheet" href="/static/setup.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-badge">Setup</div>
+        <h1>Search v LLM</h1>
+        <p class="hero-copy">
+          Pick your search engine and LLM destination, copy the generated URL, and
+          add it as your browser's default search engine.
+        </p>
+      </header>
+
+      <main class="grid">
+        <section class="card card-full">
+          <h2>Try it</h2>
+          <p class="card-copy">Test routing with your generated URL.</p>
+          <form id="test-form" class="test-form">
+            <textarea
+              id="test-query"
+              rows="3"
+              placeholder="Try a query or paste code…"
+              spellcheck="true"
+              required
+            ></textarea>
+            <button type="submit" class="btn btn-primary">Route query</button>
+          </form>
+        </section>
+
+        <section id="history-section" class="card card-full hidden">
+          <h2>Query history</h2>
+          <p class="card-copy">
+            Past queries are saved locally in your browser when logging is enabled.
+            Rate whether search was enough or you needed an LLM.
+          </p>
+          <div id="query-history"></div>
+        </section>
+
+        <section class="card">
+          <h2>Configure routing</h2>
+
+          <label for="search-engine">Search engine</label>
+          <select id="search-engine">
+            <option value="google">Google</option>
+            <option value="duckduckgo">DuckDuckGo</option>
+            <option value="bing">Bing</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <input
+            id="custom-search-url"
+            class="hidden"
+            type="text"
+            placeholder="https://example.com/search?q={q}"
+          />
+
+          <label for="llm">LLM destination</label>
+          <select id="llm">
+            <option value="openai">ChatGPT</option>
+            <option value="claude">Claude</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <input
+            id="custom-llm-url"
+            class="hidden"
+            type="text"
+            placeholder="https://your-llm.com?q={q}"
+          />
+
+          <label class="checkbox-row">
+            <input id="opt-out-logging" type="checkbox" />
+            <span>Don't log my queries for backend analysis</span>
+          </label>
+        </section>
+
+        <section class="card">
+          <h2>Default search engine URL</h2>
+          <p class="card-copy">
+            Your choices are encoded in this URL. Add it as a custom search engine,
+            then set it as default.
+          </p>
+
+          <label for="search-url">Search URL</label>
+          <div class="copy-row">
+            <input id="search-url" type="text" readonly />
+            <button id="copy-search-url" class="btn btn-secondary" type="button">Copy</button>
+          </div>
+          <p id="save-status" class="status" aria-live="polite"></p>
+
+          <div class="steps">
+            <p><strong>Chrome / Edge</strong></p>
+            <ol>
+              <li>Open <code>chrome://settings/searchEngines</code></li>
+              <li>Click <strong>Add</strong></li>
+              <li>Name: <code>Search v LLM</code></li>
+              <li>Shortcut: <code>svllm</code></li>
+              <li>Paste the search URL above</li>
+              <li>Set as default</li>
+            </ol>
+
+            <p><strong>Firefox</strong></p>
+            <ol>
+              <li>Open Settings → Search</li>
+              <li>Scroll to Search Shortcuts → Add</li>
+              <li>Paste the search URL and save</li>
+              <li>Set as default search engine</li>
+            </ol>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/query_history.js"></script>
+    <script src="/static/setup.js"></script>
+  </body>
+</html>

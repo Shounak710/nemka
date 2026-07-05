@@ -49,8 +49,6 @@ export function getLlmUrl(query, settings) {
   switch (settings.llm) {
     case "claude":
       return "https://claude.ai/new";
-    case "localhost":
-      return `http://localhost:8000/?q=${encoded}`;
     case "custom":
       return (
         (settings.customLlmUrl || "").replace("{q}", encoded) ||

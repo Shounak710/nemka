@@ -96,7 +96,6 @@
             <select id="llm-select">
               <option value="openai">ChatGPT</option>
               <option value="claude">Claude</option>
-              <option value="localhost">Localhost</option>
               <option value="custom">Custom…</option>
             </select>
             <input
@@ -105,6 +104,16 @@
               type="text"
               placeholder="https://your-llm.com?q="
             />
+
+            <a
+              id="setup-link"
+              class="setup-link full-width"
+              href="http://127.0.0.1:5000/setup"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open setup page for default search engine
+            </a>
           </div>
         </details>
       </main>

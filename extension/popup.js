@@ -297,6 +297,11 @@ async function init() {
   applySettingsToUI();
   autoResizeTextarea();
   loadPendingFeedback();
+
+  const setupLink = document.getElementById("setup-link");
+  if (setupLink) {
+    setupLink.href = `${settings.apiBaseUrl}/setup`;
+  }
 }
 
 init();

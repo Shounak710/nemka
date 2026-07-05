@@ -332,3 +332,20 @@ h1 {
 .settings-grid .full-width {
   grid-column: 1 / -1;
 }
+
+.setup-link {
+  display: block;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+.setup-link:hover {
+  filter: brightness(0.98);
+}
