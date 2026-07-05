@@ -1,10 +1,12 @@
 import json
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote, urlencode
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -23,6 +25,18 @@ from .routing_urls import (
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 app = FastAPI(title="Nemka", version="1.0.0")
+
+_cors_origins = os.getenv("CORS_ORIGINS", "*")
+_origins = [origin.strip() for origin in _cors_origins.split(",") if origin.strip()]
+_allow_all = len(_origins) == 1 and _origins[0] == "*"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if _allow_all else _origins,
+    allow_credentials=not _allow_all,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 

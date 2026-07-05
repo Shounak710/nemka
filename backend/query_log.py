@@ -1,9 +1,11 @@
 import json
+import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-LOG_DIR = Path(__file__).resolve().parent / "logs"
+_DEFAULT_LOG_DIR = Path(__file__).resolve().parent / "logs"
+LOG_DIR = Path(os.environ["LOG_DIR"]) if os.getenv("LOG_DIR") else _DEFAULT_LOG_DIR
 CLASSIFICATION_LOG_PATH = LOG_DIR / "queries.jsonl"
 FEEDBACK_LOG_PATH = LOG_DIR / "feedback.jsonl"
 

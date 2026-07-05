@@ -1,12 +1,14 @@
 import hashlib
 import json
+import os
 from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from .geo_service import is_local_ip, lookup_country
 
-LOG_DIR = Path(__file__).resolve().parent / "logs"
+_DEFAULT_LOG_DIR = Path(__file__).resolve().parent / "logs"
+LOG_DIR = Path(os.environ["LOG_DIR"]) if os.getenv("LOG_DIR") else _DEFAULT_LOG_DIR
 STATS_LOG_PATH = LOG_DIR / "stats.jsonl"
 _USER_HASH_SALT = "nemka-aggregate-stats-v1"
 
