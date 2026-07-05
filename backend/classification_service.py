@@ -5,7 +5,23 @@ from .heuristic_service import apply_heuristics, is_code_review_query
 from .stackoverflow_service import find_acceptable_answer, is_code_query
 
 _MODEL_PATH = Path(__file__).resolve().parent.parent / "model_training" / "query_router.pkl"
-_model = pickle.load(_MODEL_PATH.open("rb"))
+_model = None
+
+
+def _get_model():
+    global _model
+    if _model is not None:
+        return _model
+
+    if not _MODEL_PATH.exists():
+        raise RuntimeError(
+            "Trained model not found at model_training/query_router.pkl. "
+            "Add dataset.csv locally and run model_training/training.ipynb."
+        )
+
+    _model = pickle.load(_MODEL_PATH.open("rb"))
+    return _model
+
 
 # Prefer search when the model is uncertain or only slightly favors LLM.
 _UNCERTAIN_THRESHOLD = 0.60
@@ -13,9 +29,10 @@ _SEARCH_BIAS_MARGIN = 0.12
 
 
 def _predict(query: str):
-    probs = _model.predict_proba([query])[0]
+    model = _get_model()
+    probs = model.predict_proba([query])[0]
     prob_by_label = {
-        label: float(prob) for label, prob in zip(_model.classes_, probs)
+        label: float(prob) for label, prob in zip(model.classes_, probs)
     }
     search_prob = prob_by_label["search"]
     llm_prob = prob_by_label["llm"]
@@ -33,9 +50,6 @@ def _predict(query: str):
 
 
 def _apply_stackoverflow_override(query: str, result: dict) -> dict:
-    print(is_code_review_query(query))
-    print(is_code_query(query))
-    print(find_acceptable_answer(query))
     if is_code_review_query(query):
         return {**result, "route": "llm"}
 

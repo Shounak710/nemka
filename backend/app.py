@@ -7,9 +7,11 @@ from urllib.parse import quote, urlencode
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+
+from .admin_auth import require_admin_key
 
 from .classification_service import classify
 from .query_log import log_classification, log_feedback, update_log_preference
@@ -38,6 +40,14 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+@app.middleware("http")
+async def block_sensitive_paths(request: Request, call_next):
+    path = request.url.path.lower()
+    if path.startswith("/logs") or path.endswith(".jsonl") or "/logs/" in path:
+        return JSONResponse({"detail": "Not found"}, status_code=404)
+    return await call_next(request)
 
 
 class ClassifyRequest(BaseModel):
@@ -290,7 +300,8 @@ def classify_query(body: ClassifyRequest, request: Request, background_tasks: Ba
 
 
 @app.get("/api/stats/summary")
-def stats_summary(days: int = Query(30, ge=1, le=365)):
+def stats_summary(request: Request, days: int = Query(30, ge=1, le=365)):
+    require_admin_key(request)
     return summarize_stats(days=days)
 
 

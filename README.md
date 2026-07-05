@@ -40,8 +40,9 @@ Query → Heuristics → (if no match) ML model → (if code query) Stack Overfl
 │   └── static/              # Setup page assets
 ├── extension/               # Chrome/Firefox extension (Manifest V3)
 ├── model_training/          # Dataset, notebooks, trained model
-│   ├── dataset.csv
-│   ├── query_router.pkl
+│   ├── dataset.example.csv  # Format reference (committed)
+│   ├── dataset.csv          # Private — not in git; copy from example locally
+│   ├── query_router.pkl     # Private — train locally; not in git
 │   ├── training.ipynb
 │   └── model.ipynb
 └── requirements.txt
@@ -92,7 +93,7 @@ Add `&log=0` to disable query logging while still collecting anonymous stats.
 | `POST` | `/classify` | Classify only (used by extension) |
 | `POST` | `/feedback` | Submit routing feedback |
 | `POST` | `/api/log-preference` | Rate a logged query from setup history |
-| `GET` | `/api/stats/summary?days=30` | Aggregate usage statistics |
+| `GET` | `/api/stats/summary?days=30` | Private usage analytics (`X-Stats-Key` required; 404 if unset) |
 | `GET` | `/health` | Health check |
 
 ### Classify response
@@ -111,19 +112,25 @@ When Stack Overflow matches, `source` is `"stackoverflow"` and `redirect_url` po
 
 ## Logging and privacy
 
-| Log file | Contents | Opt-out |
-|----------|----------|---------|
-| `backend/logs/queries.jsonl` | Full query text + classification | Yes (`log=0` or checkbox on setup page) |
-| `backend/logs/feedback.jsonl` | User feedback on routing quality | N/A |
-| `backend/logs/stats.jsonl` | Anonymous stats per request | Always on |
+Log files and training data are **not committed to git** and are **not served over HTTP**.
+
+| Log file | Contents | In git | Opt-out |
+|----------|----------|--------|---------|
+| `backend/logs/queries.jsonl` | Full query text + classification | No | Yes (`log=0` or checkbox on setup page) |
+| `backend/logs/feedback.jsonl` | User feedback on routing quality | No | N/A |
+| `backend/logs/stats.jsonl` | Anonymous stats per request | No | Always on |
+| `model_training/dataset.csv` | Training labels | No | N/A |
+| `model_training/query_router.pkl` | Trained classifier | No | N/A |
 
 **Stats entries** include timestamp, hashed user ID, route destination (`search` / `llm` / `stackoverflow`), latency, country, and whether the query was logged. No query text is stored in stats.
+
+Set `STATS_API_KEY` in your environment (see `.env.example`). The stats endpoint returns **404** when the key is not configured, and **403** without a valid `X-Stats-Key` header. Log files are never served over HTTP.
 
 Query history on the setup page is stored in **localStorage** in your browser, not on the server.
 
 ## Model training
 
-Training data lives in `model_training/dataset.csv`. To retrain:
+Training data is private. Copy the format from `model_training/dataset.example.csv` to `model_training/dataset.csv` and add your labeled rows locally (this file stays out of git). To retrain:
 
 1. Open `model_training/training.ipynb`.
 2. Train and export `query_router.pkl`.
