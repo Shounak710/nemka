@@ -5,7 +5,7 @@ DEFAULT_PREFERENCES = {
     "llm": "openai",
 }
 
-VALID_SEARCH_ENGINES = {"google", "duckduckgo", "bing", "firefox"}
+VALID_SEARCH_ENGINES = {"google", "duckduckgo", "bing"}
 VALID_LLMS = {"openai", "claude"}
 
 
@@ -37,8 +37,6 @@ def build_search_url(query: str, preferences: dict) -> str:
         return f"https://duckduckgo.com/?q={encoded}"
     if engine == "bing":
         return f"https://www.bing.com/search?q={encoded}"
-    if engine == "firefox":
-        return f"https://www.google.com/search?client=firefox-b-d&q={encoded}"
 
     return f"https://www.google.com/search?q={encoded}"
 

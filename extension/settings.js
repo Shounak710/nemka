@@ -5,7 +5,7 @@ export const DEFAULT_SETTINGS = {
   feedbackDelayMinutes: 3,
 };
 
-const VALID_SEARCH_ENGINES = new Set(["google", "duckduckgo", "bing", "firefox"]);
+const VALID_SEARCH_ENGINES = new Set(["google", "duckduckgo", "bing"]);
 const VALID_LLMS = new Set(["openai", "claude"]);
 
 export function normalizeSearchEngine(value) {
@@ -47,8 +47,6 @@ export function getSearchUrl(query, settings) {
       return `https://duckduckgo.com/?q=${encoded}`;
     case "bing":
       return `https://www.bing.com/search?q=${encoded}`;
-    case "firefox":
-      return `https://www.google.com/search?client=firefox-b-d&q=${encoded}`;
     case "google":
     default:
       return `https://www.google.com/search?q=${encoded}`;

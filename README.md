@@ -7,7 +7,7 @@ Route each query to **web search** or an **LLM** automatically, instead of choos
 1. You submit a query (address bar, setup page, or extension popup).
 2. The backend classifies it using **heuristics**, a **scikit-learn model**, and optional **Stack Overflow** lookup for code questions.
 3. You are redirected to:
-   - **Search** — Google, DuckDuckGo, Bing, or Firefox-style Google
+   - **Search** — Google, DuckDuckGo, or Bing
    - **Stack Overflow** — when a strong existing answer is found
    - **LLM** — ChatGPT or Claude (query copied to clipboard on handoff)
 
@@ -137,7 +137,7 @@ Search engine and LLM options are encoded in the `/search` URL parameters:
 
 | Param | Values |
 |-------|--------|
-| `se` | `google`, `duckduckgo`, `bing`, `firefox` |
+| `se` | `google`, `duckduckgo`, `bing` |
 | `llm` | `openai`, `claude` |
 | `log` | `1` (default) or `0` to skip query logging |
 

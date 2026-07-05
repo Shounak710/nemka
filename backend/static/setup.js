@@ -9,7 +9,7 @@ const optOutLoggingCheckbox = document.getElementById("opt-out-logging");
 
 const PREFERENCES_KEY = "nemka_setup_preferences";
 const LEGACY_PREFERENCES_KEY = "svllm_setup_preferences";
-const VALID_SEARCH_ENGINES = new Set(["google", "duckduckgo", "bing", "firefox"]);
+const VALID_SEARCH_ENGINES = new Set(["google", "duckduckgo", "bing"]);
 const VALID_LLMS = new Set(["openai", "claude"]);
 
 const DEFAULT_PREFERENCES = {
